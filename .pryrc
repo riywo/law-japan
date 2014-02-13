@@ -1,0 +1,1 @@
+require "law/japan"

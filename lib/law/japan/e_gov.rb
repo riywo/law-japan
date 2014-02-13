@@ -6,8 +6,8 @@ require "logger"
 class Law::Japan::EGov
   SourceDir = File.join(Dir.home, ".law-japan")
 
-  HtmlRepoURL = "file:///tmp/law-japan-e_gov-html"
-  TextRepoURL = "file:///tmp/law-japan-e_gov-text"
+  HtmlRepoURL = "git@github.com:riywo/law-japan-e_gov-html.git"
+  TextRepoURL = "git@github.com:riywo/law-japan-e_gov-text.git"
 
   def initialize
     FileUtils.mkdir_p SourceDir
@@ -16,11 +16,14 @@ class Law::Japan::EGov
   def update!
     html_git.pull
     text_git.pull
-    true
   end
 
   def download!
     Downloader.new(html_data_dir).download!
+  end
+
+  def convert!
+    Converter.new(html_data_dir, text_data_dir).convert!
   end
 
   private
@@ -49,3 +52,4 @@ class Law::Japan::EGov
 end
 
 require "law/japan/e_gov/downloader"
+require "law/japan/e_gov/converter"
