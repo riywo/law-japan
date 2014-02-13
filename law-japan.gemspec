@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = Law::Japan::VERSION
   spec.authors       = ["Ryosuke IWANAGA"]
   spec.email         = ["riywo.jp@gmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
-  spec.homepage      = ""
+  spec.summary       = %q{Operating Japanese laws}
+  spec.description   = %q{This is a library for Japanese laws}
+  spec.homepage      = "https://github.com/riywo/law-japan"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
@@ -24,4 +24,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake"
   spec.add_development_dependency "pry"
   spec.add_development_dependency "mechanize"
+  spec.add_development_dependency "nokogiri"
 end
