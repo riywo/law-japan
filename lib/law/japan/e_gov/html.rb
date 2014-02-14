@@ -1,34 +1,29 @@
 require "law/japan/e_gov"
+
 require "mechanize"
 
-class Law::Japan::EGov::Downloader
-  module Mechanize::Form::Clearable
-    refine Mechanize::Form do
-      def clear_buttons
-        @clicked_buttons = []
-      end
+module Mechanize::Form::Clearable
+  refine Mechanize::Form do
+    def clear_buttons
+      @clicked_buttons = []
     end
   end
+end
+
+class Law::Japan::EGov::Html < Law::Japan::EGov
+  RepoDir = File.join(HomeDir, "update", "html")
+  RepoURL = "git@github.com:riywo/law-japan-e_gov-html.git"
+
   using Mechanize::Form::Clearable
 
-  attr_reader :root_dir
-  def initialize(root_dir, logger: nil)
-    @root_dir = root_dir
-    @logger   = logger
-  end
-
   def download!
-    logger.info "Start downloading all laws"
-    download
-    logger.info "Finish downloading all laws"
+    @logger.info "Start downloading all laws html"
+    download_html
+    @logger.info "Finish downloading all laws html"
     true
   end
 
   private
-
-  def logger
-    @logger ||= Logger.new STDOUT
-  end
 
   def agent
     unless @agent
@@ -46,7 +41,7 @@ class Law::Japan::EGov::Downloader
     index_page.forms_with(name: "index")[2]
   end
 
-  def download
+  def download_html
     category_form.buttons.each do |button|
       category_name = button.node.next.text.gsub(/[ 　]+/, "")
 
@@ -59,14 +54,14 @@ class Law::Japan::EGov::Downloader
         h_file_name = CGI.parse(link.uri.query)["H_FILE_NAME"].first
         if h_file_name =~ /^([MTSH]\d{2})/
           law_url = "http://law.e-gov.go.jp/htmldata/#{$1}/#{h_file_name}.html"
-          law_file = File.join(root_dir, category_name, "#{h_file_name}.html")
+          law_file = File.join(data_dir, category_name, "#{h_file_name}.html")
           if File.exists? law_file
             logger.info "File already exists for #{law_name} (#{law_file})"
           else
             logger.info "Start downloading for #{law_name} (url: #{law_url}, file: #{law_file})"
-             agent.download(law_url, law_file)
+            agent.download(law_url, law_file)
             logger.info "Finish downloading for #{law_name} (url: #{law_url}, file: #{law_file})"
-             sleep 2
+            sleep 2
           end
         else
           logger.warn "Invalid H_FILE_NAME #{h_file_name} for #{law_file}"

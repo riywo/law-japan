@@ -1,61 +1,28 @@
 require "law/japan"
 
-require "git"
 require "logger"
 
 class Law::Japan::EGov
-  SourceDir = File.join(Dir.home, ".law-japan")
+  HomeDir = File.join(Law::Japan::SourceDir, "e_gov")
 
-  HtmlRepoURL = "git@github.com:riywo/law-japan-e_gov-html.git"
-  TextRepoURL = "git@github.com:riywo/law-japan-e_gov-text.git"
+  RepoDir = File.join(HomeDir, "repo")
+  RepoURL = "https://github.com/riywo/law-japan-e_gov-text.git"
 
-  def initialize(logger: nil)
-    FileUtils.mkdir_p SourceDir
-    @logger = logger
+  def initialize(repo_dir: nil, repo_url: nil, logger: nil)
+    repo_dir ||= self.class::RepoDir
+    repo_url ||= self.class::RepoURL
+    @logger = logger || Logger.new(STDOUT)
+
+    @logger.info "Open or clone git repo(#{repo_dir}, #{repo_url}) and pull the latest data"
+    @git = Git.open_or_clone(repo_dir, repo_url, log: @logger)
+    pull
   end
 
-  def update!
-    html_git.pull
-    text_git.pull
-    true
+  def pull
+    @git.pull
   end
 
-  def download!
-    Downloader.new(html_data_dir, logger: logger).download!
-  end
-
-  def convert!
-    Converter.new(html_data_dir, text_data_dir, logger: logger).convert!
-  end
-
-  private
-
-  def html_data_dir
-    File.join(html_git.dir.path, "data")
-  end
-
-  def text_data_dir
-    File.join(text_git.dir.path, "data")
-  end
-
-  def git_open_or_clone(repo_url, name)
-    Git.open(File.join(SourceDir, name), log: logger)
-  rescue
-    Git.clone(repo_url, name, path: SourceDir, log: logger)
-  end
-
-  def html_git
-    @html_git ||= git_open_or_clone(HtmlRepoURL, "html")
-  end
-
-  def text_git
-    @text_git ||= git_open_or_clone(TextRepoURL, "text")
-  end
-
-  def logger
-    @logger ||= Logger.new(STDOUT)
+  def data_dir
+    File.join(@git.dir.path, "data")
   end
 end
-
-require "law/japan/e_gov/downloader"
-require "law/japan/e_gov/converter"
