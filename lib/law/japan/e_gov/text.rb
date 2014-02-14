@@ -13,6 +13,9 @@ class Law::Japan::EGov::Text < Law::Japan::EGov
   end
 
   def convert!
+    @logger.info "Remove data direcotry"
+    FileUtils.rm_rf(data_dir)
+
     @logger.info "Start converting all laws"
     Dir.chdir(@html_data_dir) do
       Dir.glob(File.join("**", "*.html")) do |path|
@@ -20,6 +23,13 @@ class Law::Japan::EGov::Text < Law::Japan::EGov
       end
     end
     @logger.info "Finish converting all laws"
+
+    @logger.info "Commit updated data"
+    @git.add(all: true)
+    @git.commit("Updated at #{Time.now}")
+
+    @logger.info "Push updated data"
+#    @git.push
     true
   end
 
