@@ -12,14 +12,16 @@ class Law::Japan::EGov::Downloader
   using Mechanize::Form::Clearable
 
   attr_reader :root_dir
-  def initialize(root_dir)
+  def initialize(root_dir, logger: nil)
     @root_dir = root_dir
+    @logger   = logger
   end
 
   def download!
     logger.info "Start downloading all laws"
     download
     logger.info "Finish downloading all laws"
+    true
   end
 
   private

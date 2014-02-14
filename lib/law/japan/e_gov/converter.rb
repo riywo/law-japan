@@ -6,15 +6,17 @@ require "logger"
 class Law::Japan::EGov::Converter
   attr_reader :html_dir, :text_dir
 
-  def initialize(html_dir, text_dir)
+  def initialize(html_dir, text_dir, logger: nil)
     @html_dir = html_dir
     @text_dir = text_dir
+    @logger   = logger
   end
 
   def convert!
     logger.info "Start converting all laws"
     convert
     logger.info "Finish converting all laws"
+    true
   end
 
   private
